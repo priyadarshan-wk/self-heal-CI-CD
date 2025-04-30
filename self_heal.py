@@ -44,14 +44,16 @@ def run_command(command):
 def analyze_with_openai(error_log, affected_code):
     """Analyze error log with OpenAI GPT to suggest fixes for specific lines of code"""
     try:
-        response = openai.Completion.create(
-            model="gpt-4",  # Use GPT-4 for more advanced responses
-            prompt=f"The following is an error log from a CI/CD pipeline. Please analyze it and suggest a fix for the affected line(s) of code. The error log is as follows:\n\n{error_log}\n\nHere is the affected code snippet (in context):\n\n{affected_code}\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines.",
-            temperature=0.3,
-            max_tokens=150  # Limit to a small fix
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Or "gpt-4" if you're using GPT-4
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "The following is an error log from a CI/CD pipeline. Please analyze it and suggest a fix for the affected line(s) of code. The error log is as follows:\n\n{error_log}\n\nHere is the affected code snippet (in context):\n\n{affected_code}\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines."}
+            ],
+            max_tokens=50
         )
         # Extracting the response (fix suggestion)
-        fixed_code = response.choices[0].text.strip()
+        fixed_code = response['choices'][0]['message']['content'].strip()
         return fixed_code
     except Exception as e:
         print(f"Error with OpenAI API: {str(e)}")
