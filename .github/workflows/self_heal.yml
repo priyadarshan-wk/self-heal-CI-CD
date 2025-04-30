@@ -28,6 +28,8 @@ jobs:
     - name: Run python script
       run: |
         python3 app.py > ~/error.txt
+        pwd
+        ls -la
 
     - name: Run self-healing script
       if: failure()
@@ -35,6 +37,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
+        pwd
+        ls -la
         cat ~/error.txt
         python self_heal.py
 
