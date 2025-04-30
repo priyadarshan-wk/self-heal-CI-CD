@@ -70,7 +70,7 @@ def apply_patch(file_path, line_number, fixed_code):
 
 def self_heal():
     # Step 1: Check the error type and get logs
-    error_log = run_command('cat /path/to/error/log')
+    error_log = run_command('cat ./error.txt')
     print(f"Error Log: {error_log}")
 
     # Extract file name and line number from the error log using regex
