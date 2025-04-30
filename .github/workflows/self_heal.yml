@@ -27,9 +27,10 @@ jobs:
         # pip install openai github
     - name: Run python script
       run: |
-        python3 app.py > ~/error.txt
         pwd
         ls -la
+        python3 app.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
+        
 
     - name: Run self-healing script
       if: failure()
@@ -39,7 +40,7 @@ jobs:
       run: |
         pwd
         ls -la
-        cat ~/error.txt
+        cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
         python self_heal.py
 
     - name: Slack notification (optional)
