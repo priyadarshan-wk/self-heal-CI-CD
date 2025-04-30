@@ -14,7 +14,7 @@ BRANCH_NAME = "self-healing-branch"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize OpenAI API
-openai.api_key = OPENAI_API_KEY
+# openai.api_key = OPENAI_API_KEY
 
 # Initialize GitHub API client
 g = Github(GITHUB_TOKEN)
