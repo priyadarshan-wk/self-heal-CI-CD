@@ -2,7 +2,7 @@ import subprocess
 import os
 import sys
 import openai
-import github
+from github import Github
 import re
 
 # Configure GitHub API

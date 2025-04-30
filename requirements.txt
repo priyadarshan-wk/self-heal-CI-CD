@@ -1,4 +1,4 @@
-openai==0.27.0            # OpenAI Python client to interact with GPT-4
-PyGithub==1.58.1          # GitHub API client to interact with the GitHub repository
-requests==2.28.1          # HTTP library, used for making requests (for Slack notifications)
-python-dotenv==0.21.0     # For loading environment variables from .env file (optional)
+openai           # OpenAI Python client to interact with GPT-4
+PyGithub          # GitHub API client to interact with the GitHub repository
+requests          # HTTP library, used for making requests (for Slack notifications)
+python-dotenv     # For loading environment variables from .env file (optional)
