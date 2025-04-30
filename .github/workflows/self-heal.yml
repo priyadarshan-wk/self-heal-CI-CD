@@ -1,10 +1,7 @@
 name: Self-Healing CI/CD
 
 on:
-  workflow_run:
-    workflows: ["CI/CD Workflow"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   self_heal:
