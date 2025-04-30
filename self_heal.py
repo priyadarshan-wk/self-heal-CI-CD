@@ -46,7 +46,7 @@ def analyze_with_openai(error_log, affected_code):
     client = OpenAI()
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5",  # Or "gpt-4" if you're using GPT-4
+            model="gpt-3.5-turbo",  # Or "gpt-4" if you're using GPT-4
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": "The following is an error log from a CI/CD pipeline. Please analyze it and suggest a fix for the affected line(s) of code. The error log is as follows:\n\n{error_log}\n\nHere is the affected code snippet (in context):\n\n{affected_code}\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines."}
