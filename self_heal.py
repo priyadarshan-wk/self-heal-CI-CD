@@ -127,12 +127,12 @@ def self_heal():
     apply_patch(file_name, line_number, fixed_code)
 
     # Step 5: Commit and push changes to create a new PR
-    run_command('git checkout -b ' + BRANCH_NAME)
-    print(run_command('git branch'))
-    print(run_command('git remote -v'))
-    print(run_command('git add .'))
-    print(run_command('git commit -m "Auto-fix applied by GPT"'))
-    print(run_command('git push origin ' + BRANCH_NAME))
+    print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
+    print("git branch\n" + run_command('git branch'))
+    print("git remote -v\n" + run_command('git remote -v'))
+    print("git add .\n" + run_command('git add .'))
+    print("git commit\n" + run_command('git commit -m "Auto-fix applied by GPT"'))
+    print("git push\n" + run_command('git push origin ' + BRANCH_NAME))
 
     # Step 6: Create a Pull Request with the fixes
     pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
