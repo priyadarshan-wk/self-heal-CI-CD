@@ -2,3 +2,4 @@ openai           # OpenAI Python client to interact with GPT-4
 PyGithub          # GitHub API client to interact with the GitHub repository
 requests          # HTTP library, used for making requests (for Slack notifications)
 python-dotenv     # For loading environment variables from .env file (optional)
+requests        # For making HTTP requests to the OpenAI API

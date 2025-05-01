@@ -4,6 +4,7 @@ import sys
 from openai import OpenAI
 from github import Github
 import re
+import requests
 
 # Configure GitHub API
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -43,21 +44,39 @@ def run_command(command):
 
 def analyze_with_openai(error_log, affected_code):
     """Analyze error log with OpenAI GPT to suggest fixes for specific lines of code"""
-    client = OpenAI()
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Or "gpt-4" if you're using GPT-4
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "The following is an error log from a CI/CD pipeline. Please analyze it and suggest a fix for the affected line(s) of code. The error log is as follows:\n\n{error_log}\n\nHere is the affected code snippet (in context):\n\n{affected_code}\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines."}
-            ],
-        )
-        # Extracting the response (fix suggestion)
-        fixed_code = response.choices[0].message.content
-        return fixed_code
-    except Exception as e:
-        print(f"Error with OpenAI API: {str(e)}")
-        return None
+    response = requests.post('https://ybihb67gu2iuqydrxllnml64ku0lbcgt.lambda-url.us-east-1.on.aws/agent/a-demo-priyadarshan/send_message',
+    headers={
+    'content-type': 'application/json',
+    'x-user-id': 'demo-priyadarshan',
+    'x-authentication': 'api-key D0D53A3E15AADEDAF56AF13A:94cf03f1599f98793a78a9aa58abca36'
+    },
+
+    json={
+        "input": {
+        "expyId": "",
+        "source": "",
+        "persistent": False,
+        "messages": [
+            {
+            "role": "user",
+            "payload": {
+                "content": "Hello!"
+            },
+            "context": {
+                "contentFilters": []
+            }
+            }
+        ]
+        }
+    }
+    )
+    # Extracting the response (fix suggestion)
+    response_json = response.json()
+    response_content = response_json['output']['payload']['content']
+    return response_content
+    # except Exception as e:
+    #     print(f"Error with OpenAI API: {str(e)}")
+    #     return None
 
 def apply_patch(file_path, line_number, fixed_code):
     """Apply the fix to the affected line of the file"""
