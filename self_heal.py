@@ -128,11 +128,10 @@ def self_heal():
 
     # Step 5: Commit and push changes to create a new PR
     run_command('git checkout -b ' + BRANCH_NAME)
-    get_branch = run_command('git branch')
-    print(get_branch)
+    print(run_command('git branch'))
     print(run_command('git remote -v'))
-    run_command('git add .')
-    run_command('git commit -m "Auto-fix applied by GPT"')
+    print(run_command('git add .'))
+    print(run_command('git commit -m "Auto-fix applied by GPT"'))
     print(run_command('git push origin ' + BRANCH_NAME))
 
     # Step 6: Create a Pull Request with the fixes
