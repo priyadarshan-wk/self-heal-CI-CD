@@ -7,7 +7,7 @@ import re
 import requests
 
 # Configure GitHub API
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("YOUR_GITHUB_TOKEN")
 REPO_NAME = os.getenv("GITHUB_REPOSITORY")
 BRANCH_NAME = "self-healing-branch"
 
