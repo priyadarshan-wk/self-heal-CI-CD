@@ -26,6 +26,7 @@ def create_pr(branch_name, message):
     try:
         base = "main"
         head = branch_name
+        print("in create_pr")
         pr = repo.create_pull(title="Auto Fix: " + message,
                                body="Automated fix applied based on CI/CD error",
                                head=head, base=base)
@@ -88,6 +89,8 @@ def apply_patch(file_path, line_number, fixed_code):
 
     with open(file_path, "w") as file:
         file.writelines(lines)
+    print("cat app.py")
+    run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
 
 def self_heal():
     # Step 1: Check the error type and get logs
