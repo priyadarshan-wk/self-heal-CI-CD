@@ -60,7 +60,7 @@ def analyze_with_openai(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines."
+                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show only the code that needs to be changed, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed code snippet."
             },
             "context": {
                 "contentFilters": []
