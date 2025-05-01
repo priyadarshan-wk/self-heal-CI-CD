@@ -3,8 +3,8 @@ name: Self-Healing CI/CD
 on:
   workflow_dispatch:
 
-permissions:
-  pull-requests: write # for creating PRs
+# permissions:
+#   pull-requests: write # for creating PRs
 
 jobs:
   self_heal:
