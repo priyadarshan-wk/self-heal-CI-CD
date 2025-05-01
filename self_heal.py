@@ -90,7 +90,8 @@ def apply_patch(file_path, line_number, fixed_code):
     with open(file_path, "w") as file:
         file.writelines(lines)
     print("cat app.py")
-    run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
+    app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
+    print(app_file)
 
 def self_heal():
     # Step 1: Check the error type and get logs
@@ -127,6 +128,8 @@ def self_heal():
 
     # Step 5: Commit and push changes to create a new PR
     run_command('git checkout -b ' + BRANCH_NAME)
+    get_branch = run_command('git branch')
+    print(get_branch)
     run_command('git add .')
     run_command('git commit -m "Auto-fix applied by GPT"')
     run_command('git push origin ' + BRANCH_NAME)
