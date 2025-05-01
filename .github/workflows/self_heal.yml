@@ -3,12 +3,13 @@ name: Self-Healing CI/CD
 on:
   workflow_dispatch:
 
-# permissions:
-#   pull-requests: write # for creating PRs
 
 jobs:
   self_heal:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # for creating PRs
+
 
     steps:
     - name: Install build dependencies
