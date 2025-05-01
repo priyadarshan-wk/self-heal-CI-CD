@@ -131,7 +131,7 @@ def self_heal():
     print("git branch\n" + run_command('git branch'))
     print("git remote -v\n" + run_command('git remote -v'))
     print("git add .\n" + run_command('git add .'))
-    print("git commit\n" + run_command('git commit --author "testUser testuser@mail.com"-m "Auto-fix applied by GPT"'))
+    print("git commit\n" + run_command('git commit -m "Auto-fix applied by GPT"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME))
 
     # Step 6: Create a Pull Request with the fixes
