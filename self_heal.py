@@ -60,7 +60,7 @@ def analyze_with_openai(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Hello!"
+                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines."
             },
             "context": {
                 "contentFilters": []
