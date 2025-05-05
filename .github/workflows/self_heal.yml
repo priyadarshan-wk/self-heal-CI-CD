@@ -41,6 +41,7 @@ jobs:
         
 
     - name: Run self-healing script
+      id: self_heal
       if: failure()
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
@@ -51,7 +52,7 @@ jobs:
         cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
         python self_heal.py
 
-    - name: Slack notification (optional)
-      if: success()
+    - name: Slack notification
+      if: steps.self_heal.outputs == 'success'
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Self-healing workflow completed. PR created with the fix!"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}

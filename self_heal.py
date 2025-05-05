@@ -138,6 +138,9 @@ def self_heal():
     pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
     print(f"PR created: {pr_url}")
     return pr_url
+def set_git_env_vars():
+    with open('$GITHUB_ENV', 'a') as f:
+        f.write(f'PR_LINK={pr_link}\n')
 
 if __name__ == "__main__":
     pr_link = self_heal()
