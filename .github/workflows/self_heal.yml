@@ -42,15 +42,17 @@ jobs:
     - name: Dynamically find and run Python files
       run: |
         # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
-        for python_file in $(find . -name "*.py" -not -path "./.github/*"); do
-          echo "Running $python_file"
-          python3 $python_file > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
-          
-          # If the script fails, exit with an error
-          if [ $? -ne 0 ]; then
-            echo "Error running $python_file!"
-            exit 1
-          fi
+        for python_file in $(find ./self-heal-CI-CD/src -name "*.py"); do
+        echo "Running $python_file"
+        
+        # Create a unique error log per file
+        error_log="/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/$(basename "$python_file").error.txt"
+
+        python3 "$python_file" > "$error_log" 2>&1
+
+        if [ $? -ne 0 ]; then
+          echo "Error running $python_file! See $error_log"
+        fi
         done
 
     - name: Run self-healing script
