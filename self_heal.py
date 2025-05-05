@@ -43,7 +43,7 @@ def run_command(command):
     except subprocess.CalledProcessError as e:
         return e.stderr.decode('utf-8')
 
-def analyze_with_openai(error_log, affected_code):
+def analyze_with_fab(error_log, affected_code):
     """Analyze error log with OpenAI GPT to suggest fixes for specific lines of code"""
     response = requests.post('https://ybihb67gu2iuqydrxllnml64ku0lbcgt.lambda-url.us-east-1.on.aws/agent/a-demo-priyadarshan/send_message',
     headers={
@@ -116,7 +116,7 @@ def self_heal():
     print(f"Affected code: {affected_code}")
     
     # Step 3: Use OpenAI to analyze the error and generate the fixed code for that line
-    fixed_code = analyze_with_openai(error_log, affected_code)
+    fixed_code = analyze_with_fab(error_log, affected_code)
     if fixed_code:
         print(f"AI generated fix: {fixed_code}")
     else:

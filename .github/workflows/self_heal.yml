@@ -37,7 +37,7 @@ jobs:
       run: |
         pwd
         ls -la
-        python3 app.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
+        python3 bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
         
 
     - name: Run self-healing script
