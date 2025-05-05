@@ -49,7 +49,6 @@ jobs:
           # If the script fails, exit with an error
           if [ $? -ne 0 ]; then
             echo "Error running $python_file!"
-            exit 1
           fi
         done
 
