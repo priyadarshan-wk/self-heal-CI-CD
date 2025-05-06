@@ -1,4 +1,4 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 35
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 41
     ```
     ^
 SyntaxError: invalid syntax
