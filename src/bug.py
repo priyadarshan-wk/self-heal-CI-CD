@@ -26,7 +26,8 @@ if radius > 0:
 
 if radius > 0:
     print("The radius is positive!")
-```
+if radius > 0:
+    print("The radius is positive!")
 # Assuming this is the full content of the file
 
 if radius > 0:
