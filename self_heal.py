@@ -163,9 +163,29 @@ def self_heal():
         fixed_code = analyze_with_fab(error_log, error_context)
        
         if fixed_code:
-            print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
+            # Clean up the fixed code to remove any markdown or previous suggestions
+            cleaned_code = re.sub(r'```.*?```', '', fixed_code, flags=re.DOTALL)  # Remove code blocks
+            cleaned_code = re.sub(r'^\s*```[a-z]*\s*', '', cleaned_code, flags=re.MULTILINE)  # Remove starting ```
+            cleaned_code = re.sub(r'\s*```\s*$', '', cleaned_code, flags=re.MULTILINE)  # Remove ending ```
+            
+            # Remove any explanatory text (common patterns in AI responses)
+            lines_to_keep = []
+            for line in cleaned_code.split('\n'):
+                # Skip lines that look like explanations
+                if re.match(r'^(Here|This|I|The fix|To fix|We need)', line.strip()):
+                    continue
+                if line.strip() and not line.strip().startswith('#') and not line.strip().startswith('//'):
+                    lines_to_keep.append(line)
+            
+            # Join only the code lines
+            final_code = '\n'.join(lines_to_keep).strip()
+            
+            print(f"AI generated fix for {file_name}, line {line_number}:")
+            print(f"ORIGINAL FIX:\n{fixed_code}")
+            print(f"CLEANED FIX:\n{final_code}")
+            
             # Apply the generated fix
-            apply_patch(file_name, line_number, fixed_code)
+            apply_patch(file_name, line_number, final_code)
             fixed_files.add(file_name)
         else:
             print(f"No fix suggestion for error in {file_name}, line {line_number}.")
