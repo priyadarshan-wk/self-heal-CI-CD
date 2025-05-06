@@ -9,7 +9,7 @@ import requests
 # Configure GitHub API
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 REPO_NAME = os.getenv("GITHUB_REPOSITORY")
-BRANCH_NAME = "self-healing-branch-saurabh"
+BRANCH_NAME = "self-healing-branch-saurabh-testing"
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -77,6 +77,9 @@ def analyze_with_fab(error_log, affected_code):
     # Clean up any markdown code block formatting if present
     response_content = re.sub(r'```\w*\n', '', response_content)
     response_content = re.sub(r'```', '', response_content)
+    # Remove any additional explanations or markdown
+    response_content = re.sub(r'^.*?```python\s*', '', response_content, flags=re.DOTALL)
+    response_content = re.sub(r'```.*$', '', response_content, flags=re.DOTALL)
     return response_content.strip()
 
 def apply_patch(file_path, line_number, fixed_code):
@@ -87,19 +90,36 @@ def apply_patch(file_path, line_number, fixed_code):
     # Check if the fix contains multiple lines
     fixed_lines = fixed_code.strip().split('\n')
     
+    # Validate the fix - make sure it doesn't have redundant repetitions
+    # Remove duplicate consecutive lines
+    unique_lines = []
+    for line in fixed_lines:
+        if not unique_lines or line.strip() != unique_lines[-1].strip():
+            unique_lines.append(line)
+            
+    # Check indentation consistency (basic validation)
+    if len(unique_lines) > 1:
+        base_indent = len(unique_lines[0]) - len(unique_lines[0].lstrip())
+        for i in range(1, len(unique_lines)):
+            curr_indent = len(unique_lines[i]) - len(unique_lines[i].lstrip())
+            if curr_indent > base_indent + 4:  # Probably a formatting error
+                unique_lines[i] = ' ' * (base_indent + 4) + unique_lines[i].lstrip()
+    
     # Replace the affected line with the fixed code
-    if len(fixed_lines) == 1:
+    if len(unique_lines) == 1:
         # Single line replacement
-        lines[line_number - 1] = fixed_lines[0] + '\n'
+        lines[line_number - 1] = unique_lines[0] + '\n'
     else:
         # Multi-line replacement - remove original line and insert new lines
-        lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
+        lines[line_number - 1:line_number] = [line + '\n' for line in unique_lines]
     
     with open(file_path, "w") as file:
         file.writelines(lines)
     
     print(f"Applied fix to {file_path} at line {line_number}")
-    print(f"New code: {fixed_code}")
+    print(f"New code (after cleanup):")
+    for line in unique_lines:
+        print(f"  {line}")
     if file_path.endswith('app.py'):
         app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
         print("Current app.py content:")
