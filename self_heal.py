@@ -186,23 +186,25 @@ def self_heal():
     print("git remote -v\n" + run_command('git remote -v'))
     print("git add .\n" + run_command('git add .'))
     print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
-    print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
+    
     
     #check remote branch exists
-    check_remote_branch = run_command('git ls-remote --heads origin self-healing-branch')
+    check_remote_branch = run_command('git ls-remote --heads origin ' + BRANCH_NAME)
     if not check_remote_branch:
         # Step 6: Create a Pull Request with the fixes
+        print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
         print(f"PR created: {pr_url}")
         return pr_url
-    else: 
+    else:
+        print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         print("Remote branch already exists. No new PR created.")
         return None
-
+    
     # Create a PR with all the fixes
-    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
-    print(f"PR created: {pr_url}")
-    return pr_url
+    # pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
+    # print(f"PR created: {pr_url}")
+    # return pr_url
 
 def set_git_env_vars():
     with open('$GITHUB_ENV', 'a') as f:
