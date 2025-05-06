@@ -61,7 +61,7 @@ def analyze_with_fab(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show only the code that needs to be changed, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed code snippet."
+                "content": "Fix ONLY this specific error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nRESPOND ONLY WITH THE EXACT REPLACEMENT CODE. DO NOT include any explanation, surrounding code, or markdown formatting. DO NOT repeat code unnecessarily. Your response should contain ONLY the code that should directly replace the problematic line(s)."
             },
             "context": {
                 "contentFilters": []
@@ -74,34 +74,81 @@ def analyze_with_fab(error_log, affected_code):
     # Extracting the response (fix suggestion)
     response_json = response.json()
     response_content = response_json['output']['payload']['content']
-    return response_content
-    # except Exception as e:
-    #     print(f"Error with OpenAI API: {str(e)}")
-    #     return None
+    
+    # Clean the response of any markdown or explanation
+    response_content = re.sub(r'```\w*\n?', '', response_content)
+    response_content = re.sub(r'```', '', response_content)
+    
+    # If response contains explanatory text, try to extract just the code
+    if len(response_content.split('\n')) > 10:  # Likely contains explanations
+        # Try to extract just code blocks or indented code
+        code_lines = []
+        for line in response_content.split('\n'):
+            if line.strip() and not re.match(r'^[A-Z]', line.strip()) and not line.strip().startswith(('#', '//')):
+                code_lines.append(line)
+        response_content = '\n'.join(code_lines)
+    
+    return response_content.strip()
 
 def apply_patch(file_path, line_number, fixed_code):
     """Apply the fix to the affected line of the file"""
     with open(file_path, "r") as file:
         lines = file.readlines()
-
-    # Check if the fix contains multiple lines
-    fixed_lines = fixed_code.strip().split('\n')
     
-    # Replace the affected line with the fixed code
-    if len(fixed_lines) == 1:
-        # Single line replacement
-        lines[line_number - 1] = fixed_code + '\n'
+    # Store the original line for comparison
+    original_line = lines[line_number - 1].strip()
+    
+    # Get the actual indentation of the original line
+    match = re.match(r'^(\s*)', lines[line_number - 1])
+    indentation = match.group(1) if match else ''
+    
+    # Process the fixed code to maintain proper indentation
+    fixed_lines = []
+    for line in fixed_code.strip().split('\n'):
+        # Only add indentation if the line isn't already indented
+        if line.strip() and not line.startswith(indentation) and not re.match(r'^\s+', line):
+            fixed_lines.append(indentation + line)
+        else:
+            fixed_lines.append(line)
+    
+    # Replace the line with the fixed code
+    lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
+    
+    # Verify the change isn't just duplicating code
+    new_content = ''.join(lines)
+    
+    # Check for obvious duplicate lines in proximity
+    duplicate_pattern = False
+    for i in range(1, len(fixed_lines)):
+        if fixed_lines[i].strip() == fixed_lines[i-1].strip():
+            duplicate_pattern = True
+            break
+    
+    if duplicate_pattern:
+        print("WARNING: Detected duplicate lines in fix. Using simplified version.")
+        # Apply a more conservative fix - just replace the single line
+        lines = []
+        with open(file_path, "r") as file:
+            lines = file.readlines()
+        lines[line_number - 1] = indentation + fixed_lines[0] + '\n'
+        with open(file_path, "w") as file:
+            file.writelines(lines)
     else:
-        # Multi-line replacement - remove original line and insert new lines
-        lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
-    
-    with open(file_path, "w") as file:
-        file.writelines(lines)
+        # Apply the multi-line fix
+        with open(file_path, "w") as file:
+            file.writelines(lines)
     
     print(f"Applied fix to {file_path} at line {line_number}")
-    print("cat src/app.py")
-    app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/app.py')
-    print(app_file)
+    print(f"Original: {original_line}")
+    print(f"Fixed to:")
+    for line in fixed_lines:
+        print(f"  {line}")
+    
+    # Show the content of the file after applying the fix
+    if file_path.endswith('/app.py') or file_path.endswith('/bug.py'):
+        app_file = run_command(f'cat {file_path}')
+        print(f"Current {file_path} content:")
+        print(app_file)
 
 def self_heal():
     # Initialize variables
