@@ -84,11 +84,21 @@ def apply_patch(file_path, line_number, fixed_code):
     with open(file_path, "r") as file:
         lines = file.readlines()
 
-    # Apply the fix only to the affected line or add new lines
-    lines[line_number - 1] = fixed_code + '\n'  # Adjust to replace the line
-
+    # Check if the fix contains multiple lines
+    fixed_lines = fixed_code.strip().split('\n')
+    
+    # Replace the affected line with the fixed code
+    if len(fixed_lines) == 1:
+        # Single line replacement
+        lines[line_number - 1] = fixed_code + '\n'
+    else:
+        # Multi-line replacement - remove original line and insert new lines
+        lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
+    
     with open(file_path, "w") as file:
         file.writelines(lines)
+    
+    print(f"Applied fix to {file_path} at line {line_number}")
     print("cat app.py")
     app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
     print(app_file)
@@ -98,46 +108,67 @@ def self_heal():
     error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
     print(f"Error Log: {error_log}")
 
-    # Extract file name and line number from the error log using regex
-    match = re.search(r'File "([^"]+)", line (\d+)', error_log)
-    if match:
+    # Find all error occurrences instead of just one
+    error_matches = re.finditer(r'File "([^"]+)", line (\d+)', error_log)
+    matches_found = False
+    fixed_files = set()
+    
+    # Process each error one by one
+    for match in error_matches:
+        matches_found = True
         file_name = match.group(1)
         line_number = int(match.group(2))
-    else:
-        print("Could not parse error log for file and line.")
-        return
+        
+        # Extract the affected line(s) of code from the file
+        try:
+            with open(file_name, "r") as file:
+                lines = file.readlines()
+                affected_code = lines[line_number - 1]  # Extract the affected line
+        except (FileNotFoundError, IndexError) as e:
+            print(f"Error accessing {file_name} at line {line_number}: {str(e)}")
+            continue
+            
+        print(f"Processing error - Affected file: {file_name}, Line {line_number}")
+        print(f"Affected code: {affected_code}")
+        
+        # Get context for better fixes (a few lines before and after)
+        start_line = max(0, line_number - 3)
+        end_line = min(len(lines), line_number + 2)
+        context_code = "".join(lines[start_line:end_line])
+        
+        # Use AI to analyze the error and generate the fixed code
+        error_context = f"Error in {file_name} at line {line_number}:\n{affected_code}\nContext:\n{context_code}"
+        fixed_code = analyze_with_fab(error_log, error_context)
+        
+        if fixed_code:
+            print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
+            # Apply the generated fix
+            apply_patch(file_name, line_number, fixed_code)
+            fixed_files.add(file_name)
+        else:
+            print(f"No fix suggestion for error in {file_name}, line {line_number}.")
     
-    # Step 2: Extract the affected line(s) of code from the file
-    with open(file_name, "r") as file:
-        lines = file.readlines()
-        affected_code = lines[line_number - 1]  # Extract the affected line
-
-    print(f"Affected file: {file_name}, Line {line_number}")
-    print(f"Affected code: {affected_code}")
-    
-    # Step 3: Use OpenAI to analyze the error and generate the fixed code for that line
-    fixed_code = analyze_with_fab(error_log, affected_code)
-    if fixed_code:
-        print(f"AI generated fix: {fixed_code}")
-    else:
-        print("No fix suggestion from AI. Manual intervention required.")
-        return
-
-    # Step 4: Apply the generated fix to the affected line of the code file
-    apply_patch(file_name, line_number, fixed_code)
-
-    # Step 5: Commit and push changes to create a new PR
+    if not matches_found:
+        print("Could not parse error log for file and line information.")
+        return None
+        
+    if not fixed_files:
+        print("No fixes were applied. Manual intervention required.")
+        return None
+        
+    # Create a branch and commit all fixes
     print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
     print("git branch\n" + run_command('git branch'))
     print("git remote -v\n" + run_command('git remote -v'))
     print("git add .\n" + run_command('git add .'))
-    print("git commit\n" + run_command('git commit -m "Auto-fix applied by GPT"'))
+    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
 
-    # Step 6: Create a Pull Request with the fixes
-    pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
+    # Create a PR with all the fixes
+    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
     print(f"PR created: {pr_url}")
     return pr_url
+
 def set_git_env_vars():
     with open('$GITHUB_ENV', 'a') as f:
         f.write(f'PR_LINK={pr_link}\n')
