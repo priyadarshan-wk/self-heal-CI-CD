@@ -64,7 +64,11 @@ else:
     print("Radius is negative!")
 
 result = subprocess.run(["git", "branch"])
-```
+import subprocess
+
+result = subprocess.run(["git", "branch"])
+print("Radius is negative!")
+result = subprocess.run(["git", "branch"])
         print("Radius is negative!")
 result = subprocess.run(["git", "branch"])
 
