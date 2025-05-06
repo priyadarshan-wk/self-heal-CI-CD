@@ -61,7 +61,7 @@ def analyze_with_fab(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show only the code that needs to be changed, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed code snippet."
+                "content": "Fix this specific error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide ONLY the exact code needed to fix this specific error. Do not include previous fixes or suggestions. Return ONLY the code that should replace the problematic line(s), with no explanation, comments, or markdown formatting."
             },
             "context": {
                 "contentFilters": []
@@ -90,7 +90,7 @@ def apply_patch(file_path, line_number, fixed_code):
     # Replace the affected line with the fixed code
     if len(fixed_lines) == 1:
         # Single line replacement
-        lines[line_number - 1] = fixed_code + '\n'
+        lines[line_number - 1] = fixed_lines[0] + '\n'
     else:
         # Multi-line replacement - remove original line and insert new lines
         lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
