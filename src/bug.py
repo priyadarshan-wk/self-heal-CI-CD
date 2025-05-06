@@ -9,7 +9,7 @@ print("The perimeter is:", perimeter)
 
 def main():
     radius = 5
-calculate_area(radius
+calculate_area(radius)
 calculate_perimeter(radius)
 calculate_area(radius)
 calculate_perimeter(radius)
