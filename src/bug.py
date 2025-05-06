@@ -24,6 +24,9 @@ def check_radius(radius):
         print("Radius is negative!")
 
 check_radius(5)
-        print("Radius is negative!")
+check_radius(5)
+print("Radius is negative!")
+
+main()
     
 main()

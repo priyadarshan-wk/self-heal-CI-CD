@@ -16,7 +16,7 @@ def main():
     if radius > 0:
         print(The radius is positive!)
     else:
-        print(The radius is negative!)
+        print(The radius is positive!)
 
 def check_radius(radius):
     if radius > 0:
@@ -24,6 +24,7 @@ def check_radius(radius):
     else:
         print(Radius is negative!)
 
+check_radius(5)
 check_radius(5)
 
 main()
