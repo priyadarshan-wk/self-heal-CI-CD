@@ -104,18 +104,37 @@ def apply_patch(file_path, line_number, fixed_code):
     print(app_file)
 
 def self_heal():
-    # Step 1: Check the error type and get logs
-    error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
-    print(f"Error Log: {error_log}")
-
-    # Find all error occurrences instead of just one
-    error_matches = re.finditer(r'File "([^"]+)", line (\d+)', error_log)
-    matches_found = False
+    # Initialize variables
     fixed_files = set()
+    max_iterations = 5  # Maximum number of iterations to prevent infinite loops
+    iteration = 0
+    has_errors = True
     
-    # Process each error one by one
-    for match in error_matches:
-        matches_found = True
+    while has_errors and iteration < max_iterations:
+        iteration += 1
+        print(f"\n===== Starting iteration {iteration} =====")
+        
+        # Run the script to generate fresh error log
+        if iteration > 1:
+            error_result = run_command('python3 bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1')
+            print(f"Script run result: {error_result if error_result else 'No output'}")
+        
+        # Read the current error log
+        error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
+        print(f"Error Log: {error_log}")
+        
+        # Check if there are any errors left
+        if "Error" not in error_log and "error" not in error_log.lower() and "traceback" not in error_log.lower():
+            print("No more errors detected!")
+            has_errors = False
+            break
+            
+        # Find the first error occurrence (fix one error at a time)
+        match = re.search(r'File "([^"]+)", line (\d+)', error_log)
+        if not match:
+            print("Could not parse error log for file and line. Stopping iterations.")
+            break
+            
         file_name = match.group(1)
         line_number = int(match.group(2))
         
@@ -126,9 +145,9 @@ def self_heal():
                 affected_code = lines[line_number - 1]  # Extract the affected line
         except (FileNotFoundError, IndexError) as e:
             print(f"Error accessing {file_name} at line {line_number}: {str(e)}")
-            continue
+            break
             
-        print(f"Processing error - Affected file: {file_name}, Line {line_number}")
+        print(f"Processing error {iteration} - Affected file: {file_name}, Line {line_number}")
         print(f"Affected code: {affected_code}")
         
         # Get context for better fixes (a few lines before and after)
@@ -141,17 +160,34 @@ def self_heal():
         fixed_code = analyze_with_fab(error_log, error_context)
         
         if fixed_code:
-            print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
+            # Clean up the fixed code to remove any markdown or previous suggestions
+            cleaned_code = re.sub(r'```.*?```', '', fixed_code, flags=re.DOTALL)  # Remove code blocks
+            cleaned_code = re.sub(r'^\s*```[a-z]*\s*', '', cleaned_code, flags=re.MULTILINE)  # Remove starting ```
+            cleaned_code = re.sub(r'\s*```\s*$', '', cleaned_code, flags=re.MULTILINE)  # Remove ending ```
+            
+            # Remove any explanatory text (common patterns in AI responses)
+            lines_to_keep = []
+            for line in cleaned_code.split('\n'):
+                # Skip lines that look like explanations
+                if re.match(r'^(Here|This|I|The fix|To fix|We need)', line.strip()):
+                    continue
+                if line.strip() and not line.strip().startswith('#') and not line.strip().startswith('//'):
+                    lines_to_keep.append(line)
+            
+            # Join only the code lines
+            final_code = '\n'.join(lines_to_keep).strip()
+            
+            print(f"AI generated fix for {file_name}, line {line_number}:")
+            print(f"ORIGINAL FIX:\n{fixed_code}")
+            print(f"CLEANED FIX:\n{final_code}")
+            
             # Apply the generated fix
-            apply_patch(file_name, line_number, fixed_code)
+            apply_patch(file_name, line_number, final_code)
             fixed_files.add(file_name)
         else:
-            print(f"No fix suggestion for error in {file_name}, line {line_number}.")
+            print(f"No fix suggestion for error in {file_name}, line {line_number}. Stopping iterations.")
+            break
     
-    if not matches_found:
-        print("Could not parse error log for file and line information.")
-        return None
-        
     if not fixed_files:
         print("No fixes were applied. Manual intervention required.")
         return None
@@ -161,11 +197,11 @@ def self_heal():
     print("git branch\n" + run_command('git branch'))
     print("git remote -v\n" + run_command('git remote -v'))
     print("git add .\n" + run_command('git add .'))
-    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
+    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors - {iteration} iterations"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
 
     # Create a PR with all the fixes
-    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
+    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)} ({iteration} iterations)")
     print(f"PR created: {pr_url}")
     return pr_url
 
