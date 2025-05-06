@@ -116,7 +116,7 @@ def self_heal():
         
         # Run the script to generate fresh error log
         if iteration > 1:
-            error_result = run_command('python3 bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1')
+            error_result = run_command('python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1')
             print(f"Script run result: {error_result if error_result else 'No output'}")
         
         # Read the current error log
