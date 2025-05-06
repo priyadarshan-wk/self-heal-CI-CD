@@ -137,11 +137,18 @@ def self_heal():
     print("git add .\n" + run_command('git add .'))
     print("git commit\n" + run_command('git commit -m "Auto-fix applied by GPT"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
+    
+    #check remote branch exists
+    check_remote_branch = run_command('git ls-remote --heads origin self-healing-branch')
+    if not check_remote_branch:
+        # Step 6: Create a Pull Request with the fixes
+        pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
+        print(f"PR created: {pr_url}")
+        return pr_url
+    else: 
+        print("Remote branch already exists. No new PR created.")
+        return None
 
-    # Step 6: Create a Pull Request with the fixes
-    pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
-    print(f"PR created: {pr_url}")
-    return pr_url
 def set_git_env_vars():
     with open('$GITHUB_ENV', 'a') as f:
         f.write(f'PR_LINK={pr_link}\n')
