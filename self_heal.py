@@ -195,7 +195,8 @@ def self_heal():
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
         print(f"PR created: {pr_url}")
-        set_git_env_vars()
+        with open('$GITHUB_ENV', 'a') as f:
+            f.write(f'PR_LINK={pr_url}\n')
         return pr_url
     else:
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
@@ -206,10 +207,7 @@ def self_heal():
     # pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
     # print(f"PR created: {pr_url}")
     # return pr_url
-
-def set_git_env_vars():
-    with open('$GITHUB_ENV', 'a') as f:
-        f.write(f'PR_LINK={pr_link}\n')
+    
 
 if __name__ == "__main__":
     pr_link = self_heal()
