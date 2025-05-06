@@ -52,7 +52,12 @@ if radius > 0:
 
 if radius > 0:
     print("The radius is positive!")
-```
+if radius > 0:
+    print("The radius is positive!")
+
+# Fixed code
+if radius > 0:
+    print("The radius is positive!")
 if radius > 0:
     print("The radius is positive!")
 else:
