@@ -20,8 +20,12 @@ else:
 def check_radius(radius):
     if radius > 0:
         print("The radius is positive!")
-    else:
+else:
         print("Radius is negative!")
+result = subprocess.run(["git", "branch"])
+
+    prinht("Current branch:", result.stdout.decode().strip())
+
 
 check_radius(5)
 check_radius(5)

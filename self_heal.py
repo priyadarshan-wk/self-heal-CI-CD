@@ -195,6 +195,7 @@ def self_heal():
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
         print(f"PR created: {pr_url}")
+        set_git_env_vars()
         return pr_url
     else:
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))

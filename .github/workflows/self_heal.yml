@@ -74,5 +74,6 @@ jobs:
         python self_heal.py
 
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        echo ${{ env.PR_LINK }}
 
         
