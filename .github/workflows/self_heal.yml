@@ -50,7 +50,7 @@ jobs:
         pwd
         ls -la
         cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
-        python self_heal.py
+        python self_heal.py 
 
     - name: Slack notification
       if: steps.self_heal.outputs == 'success'
