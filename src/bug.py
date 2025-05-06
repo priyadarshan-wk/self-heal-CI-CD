@@ -5,7 +5,15 @@ def calculate_area(radius):
 
 def calculate_perimeter(radius):
     perimeter = 2 * 3.14 * radius
-print("The perimeter is:", perimeter)
+def calculate_perimeter(radius):
+    perimeter = 2 * 3.14 * radius
+    print("The perimeter is:", perimeter)
+
+
+def main():
+    calculate_perimeter(5)  # Example call to the function
+
+main()
 
 def main():
     radius = 5

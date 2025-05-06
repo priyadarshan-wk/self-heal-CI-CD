@@ -1,3 +1,4 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 27
-    print("Radius is negative!")
-IndentationError: unexpected indent
+Traceback (most recent call last):
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 8, in <module>
+    print("The perimeter is:", perimeter)
+NameError: name 'perimeter' is not defined
