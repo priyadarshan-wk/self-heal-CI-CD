@@ -14,10 +14,10 @@ calculate_perimeter(radius)
 calculate_area(radius)
 calculate_perimeter(radius)
 if radius > 0:
-    print("The radius is positive!")
+    print("The radius is positive!"
 else:
         print("The radius is positive!")
     else:
-        print("Radius is negative!")
+        print"Radius is negative!")
     
 main()

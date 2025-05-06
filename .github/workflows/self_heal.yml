@@ -34,15 +34,16 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # python -m pip install --upgrade pip
+        # $python -m pip install --upgrade pip
         pip3 install -r requirements.txt
         # pip install openai github
+
     - name: Run python script
       run: |
         pwd
         ls -la
         python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
-
+        
     - name: Run self-healing script
       id: self_heal
       if: failure()

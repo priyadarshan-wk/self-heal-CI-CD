@@ -9,7 +9,7 @@ import requests
 # Configure GitHub API
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 REPO_NAME = os.getenv("GITHUB_REPOSITORY")
-BRANCH_NAME = "self-healing-branch"
+BRANCH_NAME = "self-healing-branch-Sarang-Auto"
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -104,70 +104,243 @@ def apply_patch(file_path, line_number, fixed_code):
     print(app_file)
 
 def self_heal():
+
     # Step 1: Check the error type and get logs
+
     error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
+
     print(f"Error Log: {error_log}")
+ 
+    # Find all error occurrences
 
-    # Find all error occurrences instead of just one
     error_matches = re.finditer(r'File "([^"]+)", line (\d+)', error_log)
-    matches_found = False
-    fixed_files = set()
-    
-    # Process each error one by one
-    for match in error_matches:
-        matches_found = True
-        file_name = match.group(1)
-        line_number = int(match.group(2))
-        
-        # Extract the affected line(s) of code from the file
-        try:
-            with open(file_name, "r") as file:
-                lines = file.readlines()
-                affected_code = lines[line_number - 1]  # Extract the affected line
-        except (FileNotFoundError, IndexError) as e:
-            print(f"Error accessing {file_name} at line {line_number}: {str(e)}")
-            continue
-            
-        print(f"Processing error - Affected file: {file_name}, Line {line_number}")
-        print(f"Affected code: {affected_code}")
-        
-        # Get context for better fixes (a few lines before and after)
-        start_line = max(0, line_number - 3)
-        end_line = min(len(lines), line_number + 2)
-        context_code = "".join(lines[start_line:end_line])
-        
-        # Use AI to analyze the error and generate the fixed code
-        error_context = f"Error in {file_name} at line {line_number}:\n{affected_code}\nContext:\n{context_code}"
-        fixed_code = analyze_with_fab(error_log, error_context)
-        
-        if fixed_code:
-            print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
-            # Apply the generated fix
-            apply_patch(file_name, line_number, fixed_code)
-            fixed_files.add(file_name)
-        else:
-            print(f"No fix suggestion for error in {file_name}, line {line_number}.")
-    
-    if not matches_found:
-        print("Could not parse error log for file and line information.")
-        return None
-        
-    if not fixed_files:
-        print("No fixes were applied. Manual intervention required.")
-        return None
-        
-    # Create a branch and commit all fixes
-    print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
-    print("git branch\n" + run_command('git branch'))
-    print("git remote -v\n" + run_command('git remote -v'))
-    print("git add .\n" + run_command('git add .'))
-    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
-    print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
 
+    matches_found = False
+
+    fixed_files = set()
+
+    # Group errors by file
+
+    file_errors = {}
+
+    for match in re.finditer(r'File "([^"]+)", line (\d+)', error_log):
+
+        matches_found = True
+
+        file_name = match.group(1)
+
+        line_number = int(match.group(2))
+
+        if file_name not in file_errors:
+
+            file_errors[file_name] = []
+
+        file_errors[file_name].append(line_number)
+
+    # Process errors file by file
+
+    for file_name, line_numbers in file_errors.items():
+
+        # Sort line numbers to process in order (from bottom to top to avoid offset issues)
+
+        line_numbers.sort(reverse=True)
+
+        print(f"Processing errors in {file_name}, Lines: {sorted(line_numbers)}")
+
+        try:
+
+            with open(file_name, "r") as file:
+
+                lines = file.readlines()
+
+        except FileNotFoundError as e:
+
+            print(f"Error accessing {file_name}: {str(e)}")
+
+            continue
+
+        # Process each line with error in current file
+
+        file_modified = False
+
+        for line_number in line_numbers:
+
+            if line_number <= 0 or line_number > len(lines):
+
+                print(f"Line {line_number} is out of range for file {file_name}")
+
+                continue
+
+            # Extract the affected line of code from the file
+
+            affected_code = lines[line_number - 1]
+
+            print(f"Processing error - Affected file: {file_name}, Line {line_number}")
+
+            print(f"Affected code: {affected_code}")
+
+            # Get context for better fixes (a few lines before and after)
+
+            start_line = max(0, line_number - 3)
+
+            end_line = min(len(lines), line_number + 2)
+
+            context_code = "".join(lines[start_line:end_line])
+
+            # Use AI to analyze the error and generate the fixed code
+
+            error_context = f"Error in {file_name} at line {line_number}:\n{affected_code}\nContext:\n{context_code}"
+
+            fixed_code = analyze_with_fab(error_log, error_context)
+
+            if fixed_code:
+
+                print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
+
+                # Apply the fix directly to the lines array
+
+                fixed_lines = fixed_code.strip().split('\n')
+
+                if len(fixed_lines) == 1:
+
+                    # Single line replacement
+
+                    lines[line_number - 1] = fixed_code + '\n'
+
+                else:
+
+                    # Multi-line replacement
+
+                    lines[line_number - 1:line_number] = [line + '\n' for line in fixed_lines]
+
+                file_modified = True
+
+            else:
+
+                print(f"No fix suggestion for error in {file_name}, line {line_number}.")
+
+        # Write all fixes back to file if any were applied
+
+        if file_modified:
+
+            with open(file_name, "w") as file:
+
+                file.writelines(lines)
+
+            fixed_files.add(file_name)
+
+            print(f"Applied fixes to {file_name}")
+
+            # Display the content of app.py if that's the file we modified
+
+            if file_name.endswith('app.py'):
+
+                print("cat app.py")
+
+                app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
+
+                print(app_file)
+
+    if not matches_found:
+
+        print("Could not parse error log for file and line information.")
+
+        return None
+
+    if not fixed_files:
+
+        print("No fixes were applied. Manual intervention required.")
+
+        return None
+
+    # Create a branch and commit all fixes
+
+    print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
+
+    print("git branch\n" + run_command('git branch'))
+
+    print("git remote -v\n" + run_command('git remote -v'))
+
+    print("git add .\n" + run_command('git add .'))
+
+    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
+
+    print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
+ 
     # Create a PR with all the fixes
+
     pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
+
     print(f"PR created: {pr_url}")
+
     return pr_url
+ 
+
+# def self_heal():
+#     # Step 1: Check the error type and get logs
+#     error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
+#     print(f"Error Log: {error_log}")
+
+#     # Find all error occurrences instead of just one
+#     error_matches = re.finditer(r'File "([^"]+)", line (\d+)', error_log)
+#     matches_found = False
+#     fixed_files = set()
+    
+#     # Process each error one by one
+#     for match in error_matches:
+#         matches_found = True
+#         file_name = match.group(1)
+#         line_number = int(match.group(2))
+        
+#         # Extract the affected line(s) of code from the file
+#         try:
+#             with open(file_name, "r") as file:
+#                 lines = file.readlines()
+#                 affected_code = lines[line_number - 1]  # Extract the affected line
+#         except (FileNotFoundError, IndexError) as e:
+#             print(f"Error accessing {file_name} at line {line_number}: {str(e)}")
+#             continue
+            
+#         print(f"Processing error - Affected file: {file_name}, Line {line_number}")
+#         print(f"Affected code: {affected_code}")
+        
+#         # Get context for better fixes (a few lines before and after)
+#         start_line = max(0, line_number - 3)
+#         end_line = min(len(lines), line_number + 2)
+#         context_code = "".join(lines[start_line:end_line])
+        
+#         # Use AI to analyze the error and generate the fixed code
+#         error_context = f"Error in {file_name} at line {line_number}:\n{affected_code}\nContext:\n{context_code}"
+#         fixed_code = analyze_with_fab(error_log, error_context)
+        
+#         if fixed_code:
+#             print(f"AI generated fix for {file_name}, line {line_number}: {fixed_code}")
+#             # Apply the generated fix
+#             apply_patch(file_name, line_number, fixed_code)
+#             fixed_files.add(file_name)
+#         else:
+#             print(f"No fix suggestion for error in {file_name}, line {line_number}.")
+    
+#     if not matches_found:
+#         print("Could not parse error log for file and line information.")
+#         return None
+        
+#     if not fixed_files:
+#         print("No fixes were applied. Manual intervention required.")
+#         return None
+        
+#     # Create a branch and commit all fixes
+#     print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
+#     print("git branch\n" + run_command('git branch'))
+#     print("git remote -v\n" + run_command('git remote -v'))
+#     print("git add .\n" + run_command('git add .'))
+#     print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
+#     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
+
+#     # Create a PR with all the fixes
+#     pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
+#     print(f"PR created: {pr_url}")
+#     return pr_url
 
 def set_git_env_vars():
     with open('$GITHUB_ENV', 'a') as f:
