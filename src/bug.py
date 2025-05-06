@@ -17,7 +17,10 @@ if radius > 0:
     print("The radius is positive!")
 else:
         print("The radius is positive!")
+else:
+        print("The radius is positive!")
     else:
+        print("Radius is negative!")
         print("Radius is negative!")
     
 main()
