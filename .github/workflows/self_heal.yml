@@ -2,6 +2,10 @@ name: Self-Healing CI/CD
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+      - self-healing-branch
 
 
 jobs:
