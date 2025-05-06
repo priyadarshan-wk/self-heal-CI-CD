@@ -99,8 +99,8 @@ def apply_patch(file_path, line_number, fixed_code):
         file.writelines(lines)
     
     print(f"Applied fix to {file_path} at line {line_number}")
-    print("cat app.py")
-    app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/app.py')
+    print("cat src/app.py")
+    app_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/app.py')
     print(app_file)
 
 def self_heal():
