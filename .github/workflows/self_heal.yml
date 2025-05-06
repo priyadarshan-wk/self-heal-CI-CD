@@ -45,8 +45,9 @@ jobs:
         
     - name: Dynamically find and run Python files
       run: |
+        exit 1
         # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
-        for python_file in $(find ./self-heal-CI-CD/src -name "*.py"); do
+        for python_file in $(find /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src -name "*.py"); do
         echo "Running $python_file"
         
         # Create a unique error log per file
@@ -68,10 +69,11 @@ jobs:
       run: |
         pwd
         ls -la
+        exit 0
         cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
         python self_heal.py
 
     - name: Slack notification
       if: steps.self_heal.outputs == 'success'
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
