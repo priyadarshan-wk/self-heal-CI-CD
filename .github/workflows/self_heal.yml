@@ -73,7 +73,10 @@ jobs:
         cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
         python self_heal.py
 
-    - name: Slack notification
-      if: steps.self_heal.outputs == 'success'
-      run: |
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Slack notification
+      if: steps.self_heal.outcome == 'success'
+      run: |
+        echo ${{ steps.self_heal.outcome }}
+        # curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
