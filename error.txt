@@ -1,4 +1,4 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/./bug.py", line 12
-    calculate_area(radius
-                  ^
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/./src/app.py", line 1
+    print("Hello, World!"
+         ^
 SyntaxError: '(' was never closed
