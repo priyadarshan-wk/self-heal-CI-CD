@@ -61,7 +61,7 @@ def analyze_with_fab(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show only the code that needs to be changed, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed code snippet."
+                "content": "Fix this error:\n\n" + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show full file updated code, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed updated code."
             },
             "context": {
                 "contentFilters": []
@@ -74,6 +74,8 @@ def analyze_with_fab(error_log, affected_code):
     # Extracting the response (fix suggestion)
     response_json = response.json()
     response_content = response_json['output']['payload']['content']
+    apply_patch_file = run_command('echo "' + response_content + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    print("apply_patch_file: " + apply_patch_file)
     return response_content
     # except Exception as e:
     #     print(f"Error with OpenAI API: {str(e)}")
@@ -147,7 +149,29 @@ def self_heal():
             fixed_files.add(file_name)
         else:
             print(f"No fix suggestion for error in {file_name}, line {line_number}.")
+   
+    # Step 2: Extract the affected line(s) of code from the file
+    with open(file_name, "r") as file:
+        lines = file.readlines()
+        affected_code = lines[line_number - 1]  # Extract the affected line
+
+    print(f"Affected file: {file_name}, Line {line_number}")
+    print(f"Affected code: {affected_code}")
+
+    affected_code_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     
+    # Step 3: Use OpenAI to analyze the error and generate the fixed code for that line
+    fixed_code = analyze_with_fab(error_log, affected_code_file)
+    if fixed_code:
+        print(f"AI generated fix: {fixed_code}")
+    else:
+        print("No fix suggestion from AI. Manual intervention required.")
+        return
+
+    # Step 4: Apply the generated fix to the affected line of the code file
+    # apply_patch(file_name, line_number, fixed_code)
+
+    # Step 5: Commit and push changes to create a new PR
     if not matches_found:
         print("Could not parse error log for file and line information.")
         return None
@@ -163,6 +187,17 @@ def self_heal():
     print("git add .\n" + run_command('git add .'))
     print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
+    
+    #check remote branch exists
+    check_remote_branch = run_command('git ls-remote --heads origin self-healing-branch')
+    if not check_remote_branch:
+        # Step 6: Create a Pull Request with the fixes
+        pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
+        print(f"PR created: {pr_url}")
+        return pr_url
+    else: 
+        print("Remote branch already exists. No new PR created.")
+        return None
 
     # Create a PR with all the fixes
     pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")

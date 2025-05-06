@@ -42,6 +42,23 @@ jobs:
         pwd
         ls -la
         python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
+        
+    # - name: Dynamically find and run Python files
+    #   run: |
+    #     exit 0
+    #     # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
+    #     for python_file in $(find /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src -name "*.py"); do
+    #     echo "Running $python_file"
+        
+    #     # Create a unique error log per file
+    #     error_log="/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/$(basename "$python_file").error.txt"
+
+    #     python3 "$python_file" > "$error_log" 2>&1
+
+    #     if [ $? -ne 0 ]; then
+    #       echo "Error running $python_file! See $error_log"
+    #     fi
+    #     done
 
     - name: Run self-healing script
       id: self_heal
@@ -52,10 +69,10 @@ jobs:
       run: |
         pwd
         ls -la
+        
         cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
         python self_heal.py
 
-    - name: Slack notification
-      if: steps.self_heal.outputs == 'success'
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+
+        
