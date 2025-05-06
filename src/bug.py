@@ -20,7 +20,8 @@ else:
 def check_radius(radius):
     if radius > 0:
         print("The radius is positive!")
-```python
+if radius > 0:
+    print("The radius is positive!")
 # Assuming this is the full content of the file
 
 if radius > 0:
