@@ -1,4 +1,7 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py", line 17
-    else:
-    ^^^^
-SyntaxError: invalid syntax
+The perimeter is: 31.400000000000002
+The area is: 78.5
+The radius is positive!
+The radius is positive!
+The radius is positive!
+Radius is negative!
+The area is: 78.5
