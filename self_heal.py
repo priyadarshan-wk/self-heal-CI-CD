@@ -45,29 +45,51 @@ def run_command(command):
  
 def analyze_with_fab(error_log, affected_code):
     """Analyze error log with OpenAI GPT to suggest fixes for specific lines of code"""
+    # Format the prompt to force a specific response pattern
+    prompt = f"""Fix ONLY this specific error: {error_log}
+
+Here is the affected code snippet:
+```
+{affected_code}
+```
+
+IMPORTANT INSTRUCTIONS:
+1. Provide ONLY the exact code that should replace the problematic line(s)
+2. DO NOT use markdown formatting in your response
+3. DO NOT provide any explanations
+4. DO NOT suggest multiple alternative fixes
+5. DO NOT repeat any previously fixed code
+6. Start your response with "CODE_FIX:" and then provide ONLY the fixed code
+
+Example of proper response format:
+CODE_FIX:
+def example_function():
+    fixed_code_here
+"""
+
     response = requests.post('https://ybihb67gu2iuqydrxllnml64ku0lbcgt.lambda-url.us-east-1.on.aws/agent/a-demo-priyadarshan/send_message',
     headers={
-    'content-type': 'application/json',
-    'x-user-id': 'demo-priyadarshan',
-    'x-authentication': 'api-key D0D53A3E15AADEDAF56AF13A:94cf03f1599f98793a78a9aa58abca36'
+        'content-type': 'application/json',
+        'x-user-id': 'demo-priyadarshan',
+        'x-authentication': 'api-key D0D53A3E15AADEDAF56AF13A:94cf03f1599f98793a78a9aa58abca36'
     },
  
     json={
         "input": {
-        "expyId": "",
-        "source": "",
-        "persistent": False,
-        "messages": [
-            {
-            "role": "user",
-            "payload": {
-                "content": "Fix this specific error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide ONLY the exact code needed to fix this specific error. Do not include previous fixes or suggestions. Return ONLY the code that should replace the problematic line(s), with no explanation, comments, or markdown formatting."
-            },
-            "context": {
-                "contentFilters": []
-            }
-            }
-        ]
+            "expyId": "",
+            "source": "",
+            "persistent": False,  # Ensure no persistence between requests
+            "messages": [
+                {
+                    "role": "user",
+                    "payload": {
+                        "content": prompt
+                    },
+                    "context": {
+                        "contentFilters": []
+                    }
+                }
+            ]
         }
     }
     )
