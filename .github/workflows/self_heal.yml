@@ -76,7 +76,7 @@ jobs:
     - name: get step status
       if: always()
       id: job_status
-      run: echo ${{ steps.self_heal.outcome }}
+      run: echo ${{ steps.self_heal.outcome == 'success'}}
 
     - name: Slack notification
       if: ${{ steps.self_heal.outcome == 'success' }}
