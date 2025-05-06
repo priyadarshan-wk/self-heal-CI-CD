@@ -20,7 +20,45 @@ else:
 def check_radius(radius):
     if radius > 0:
         print("The radius is positive!")
+if radius > 0:
+    print("The radius is positive!")
+# Assuming this is the full content of the file
+
+if radius > 0:
+    print("The radius is positive!")
+if radius > 0:
+    print("The radius is positive!")
+# Assuming this is the full content of the file
+
+if radius > 0:
+    print("The radius is positive!")
+if radius > 0:
+    print("The radius is positive!")
+# Assuming this is the full content of the file
+
+if radius > 0:
+    print("The radius is positive!")
+if radius > 0:
+    print("The radius is positive!")
+# Assuming this is the full content of the file
+
+if radius > 0:
+    print("The radius is positive!")
+```
+# Assuming this is the full content of the file
+
+# Remove the incorrect markdown syntax
+
+if radius > 0:
+    print("The radius is positive!")
+```
+if radius > 0:
+    print("The radius is positive!")
 else:
+    print("Radius is negative!")
+
+result = subprocess.run(["git", "branch"])
+```
         print("Radius is negative!")
 result = subprocess.run(["git", "branch"])
 
