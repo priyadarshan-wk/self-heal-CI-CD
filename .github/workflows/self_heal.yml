@@ -42,7 +42,7 @@ jobs:
     - name: Dynamically find and run Python files
       run: |
         # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
-        for python_file in $(find ./self-heal-CI-CD/src -name "*.py"); do
+        for python_file in $(find /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src -name "*.py"); do
         echo "Running $python_file"
         
         # Create a unique error log per file
