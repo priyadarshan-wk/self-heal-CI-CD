@@ -21,6 +21,13 @@ def check_radius(radius):
     if radius > 0:
         print("The radius is positive!")
 ```python
+# Assuming this is the full content of the file
+
+# Remove the incorrect markdown syntax
+
+if radius > 0:
+    print("The radius is positive!")
+```
 if radius > 0:
     print("The radius is positive!")
 else:
