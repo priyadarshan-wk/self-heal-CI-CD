@@ -79,7 +79,7 @@ jobs:
       run: echo ${{ steps.self_heal.outcome }}
 
     - name: Slack notification
-      if: (${{ steps.self_heal.outcome }} == 'success')
+      if: ${{ steps.self_heal.outcome == 'success' }}
       run: |
         echo ${{ steps.self_heal.outcome }}
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
