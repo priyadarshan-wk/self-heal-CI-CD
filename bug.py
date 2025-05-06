@@ -16,43 +16,16 @@ def main():
     if radius > 0:
         print(The radius is positive!)
     else:
-        print(The radius is positive!)
+        print(The radius is negative!)
 
 def check_radius(radius):
     if radius > 0:
         print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-
-if radius > 0:
-    print(The radius is positive!)
-else:
-    print(Radius is negative!)
+    else:
+        print(The radius is negative!)
 
 result = subprocess.run([git, branch])
-
-print(Radius is negative!)
-result = subprocess.run([git, branch])
-
 print(Current branch:, result.stdout.decode().strip())
 
 check_radius(5)
-check_radius(5)
-print(Radius is negative!)
-
-main()
-
 main()
