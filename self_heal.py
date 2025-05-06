@@ -61,7 +61,7 @@ def analyze_with_fab(error_log, affected_code):
             {
             "role": "user",
             "payload": {
-                "content": "Fix this error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show only the code that needs to be changed, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed code snippet."
+                "content": "Fix this error:\n\n" + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide the smallest code change necessary to fix the issue, either by modifying the existing line or adding new lines. Show full file updated code, without any additional explanation or comments. Do not include any other text in the response. Just provide the fixed updated code."
             },
             "context": {
                 "contentFilters": []
@@ -74,6 +74,8 @@ def analyze_with_fab(error_log, affected_code):
     # Extracting the response (fix suggestion)
     response_json = response.json()
     response_content = response_json['output']['payload']['content']
+    apply_patch_file = run_command('echo "' + response_content + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    print("apply_patch_file: " + apply_patch_file)
     return response_content
     # except Exception as e:
     #     print(f"Error with OpenAI API: {str(e)}")
@@ -114,9 +116,11 @@ def self_heal():
 
     print(f"Affected file: {file_name}, Line {line_number}")
     print(f"Affected code: {affected_code}")
+
+    affected_code_file = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     
     # Step 3: Use OpenAI to analyze the error and generate the fixed code for that line
-    fixed_code = analyze_with_fab(error_log, affected_code)
+    fixed_code = analyze_with_fab(error_log, affected_code_file)
     if fixed_code:
         print(f"AI generated fix: {fixed_code}")
     else:
@@ -124,7 +128,7 @@ def self_heal():
         return
 
     # Step 4: Apply the generated fix to the affected line of the code file
-    apply_patch(file_name, line_number, fixed_code)
+    # apply_patch(file_name, line_number, fixed_code)
 
     # Step 5: Commit and push changes to create a new PR
     print("git checkout\n" + run_command('git checkout -b ' + BRANCH_NAME))
