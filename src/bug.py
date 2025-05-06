@@ -74,7 +74,13 @@ print("Radius is negative!")
 result = subprocess.run(["git", "branch"])
 result = subprocess.run(["git", "branch"])
 
-    prinht("Current branch:", result.stdout.decode().strip())
+```python
+import subprocess
+
+result = subprocess.run(["git", "branch"])
+
+print("Current branch:", result.stdout.decode().strip())
+```
 
 
 check_radius(5)
