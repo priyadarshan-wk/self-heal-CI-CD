@@ -69,7 +69,9 @@ import subprocess
 result = subprocess.run(["git", "branch"])
 print("Radius is negative!")
 result = subprocess.run(["git", "branch"])
-        print("Radius is negative!")
+result = subprocess.run(["git", "branch"])
+print("Radius is negative!")
+result = subprocess.run(["git", "branch"])
 result = subprocess.run(["git", "branch"])
 
     prinht("Current branch:", result.stdout.decode().strip())
