@@ -45,7 +45,7 @@ jobs:
         
     - name: Dynamically find and run Python files
       run: |
-        exit 1
+        exit 0
         # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
         for python_file in $(find /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src -name "*.py"); do
         echo "Running $python_file"
@@ -62,7 +62,7 @@ jobs:
 
     - name: Run self-healing script
       id: self_heal
-      if: failure()
+      # if: failure()
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -74,12 +74,12 @@ jobs:
         # python self_heal.py
 
     - name: get step status
-      if: always()
+      if: ${{ steps.self_heal.outcome == 'success'}}
       id: job_status
       run: echo ${{ steps.self_heal.outcome == 'success'}}
 
     - name: Slack notification
-      if: always() && ${{ steps.self_heal.outcome == 'success'}}
+      if: ${{ steps.self_heal.outcome == 'success'}}
       run: |
         echo ${{ steps.self_heal.outcome }}
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
