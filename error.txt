@@ -1,3 +1,4 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py", line 14
-    if radius > 0:
-IndentationError: unexpected indent
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 12
+    calculate_area(radius
+                  ^
+SyntaxError: '(' was never closed
