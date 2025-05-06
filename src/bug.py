@@ -28,6 +28,11 @@ if radius > 0:
 ```
 # Assuming this is the full content of the file
 
+if radius > 0:
+    print("The radius is positive!")
+```
+# Assuming this is the full content of the file
+
 # Remove the incorrect markdown syntax
 
 if radius > 0:
