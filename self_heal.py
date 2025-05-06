@@ -45,42 +45,91 @@ def run_command(command):
 
 def analyze_with_fab(error_log, affected_code):
     """Analyze error log with OpenAI GPT to suggest fixes for specific lines of code"""
+    # Format the prompt to force a specific response pattern
+    prompt = f"""Fix ONLY this specific error: {error_log}
+
+Here is the affected code snippet:
+```
+{affected_code}
+```
+
+IMPORTANT INSTRUCTIONS:
+1. Provide ONLY the exact code that should replace the problematic line(s)
+2. DO NOT use markdown formatting in your response
+3. DO NOT provide any explanations
+4. DO NOT suggest multiple alternative fixes
+5. DO NOT repeat any previously fixed code
+6. Start your response with "CODE_FIX:" and then provide ONLY the fixed code
+
+Example of proper response format:
+CODE_FIX:
+def example_function():
+    fixed_code_here
+"""
+
     response = requests.post('https://ybihb67gu2iuqydrxllnml64ku0lbcgt.lambda-url.us-east-1.on.aws/agent/a-demo-priyadarshan/send_message',
     headers={
-    'content-type': 'application/json',
-    'x-user-id': 'demo-priyadarshan',
-    'x-authentication': 'api-key D0D53A3E15AADEDAF56AF13A:94cf03f1599f98793a78a9aa58abca36'
+        'content-type': 'application/json',
+        'x-user-id': 'demo-priyadarshan',
+        'x-authentication': 'api-key D0D53A3E15AADEDAF56AF13A:94cf03f1599f98793a78a9aa58abca36'
     },
-
     json={
         "input": {
-        "expyId": "",
-        "source": "",
-        "persistent": False,
-        "messages": [
-            {
-            "role": "user",
-            "payload": {
-                "content": "Fix this specific error: " + error_log + "\n\nHere is the affected code snippet (in context):\n" + affected_code + "\n\nPlease provide ONLY the exact code needed to fix this specific error. Do not include previous fixes or suggestions. Return ONLY the code that should replace the problematic line(s), with no explanation, comments, or markdown formatting."
-            },
-            "context": {
-                "contentFilters": []
-            }
-            }
-        ]
+            "expyId": "",
+            "source": "",
+            "persistent": False,  # Ensure no persistence between requests
+            "messages": [
+                {
+                    "role": "user",
+                    "payload": {
+                        "content": prompt
+                    },
+                    "context": {
+                        "contentFilters": []
+                    }
+                }
+            ]
         }
-    }
-    )
-    # Extracting the response (fix suggestion)
-    response_json = response.json()
-    response_content = response_json['output']['payload']['content']
-    # Clean up any markdown code block formatting if present
-    response_content = re.sub(r'```\w*\n', '', response_content)
-    response_content = re.sub(r'```', '', response_content)
-    # Remove any additional explanations or markdown
-    response_content = re.sub(r'^.*?```python\s*', '', response_content, flags=re.DOTALL)
-    response_content = re.sub(r'```.*$', '', response_content, flags=re.DOTALL)
-    return response_content.strip()
+    })
+    
+    # Extract and strictly process the response
+    try:
+        response_json = response.json()
+        full_response = response_json['output']['payload']['content']
+        print(f"DEBUG - Raw AI response: {full_response}")
+        
+        # Extract only the code part using a specific marker
+        if "CODE_FIX:" in full_response:
+            code_only = full_response.split("CODE_FIX:")[1].strip()
+        else:
+            # Try to extract code between backticks if the AI didn't follow the FORMAT
+            code_match = re.search(r'```(?:python)?\s*([\s\S]*?)\s*```', full_response)
+            if code_match:
+                code_only = code_match.group(1).strip()
+            else:
+                # Last resort: take everything after any explanations (risky)
+                lines = full_response.split('\n')
+                code_lines = []
+                for line in lines:
+                    # Skip obvious explanation lines
+                    if line.startswith(('Here', 'This', 'The', 'To fix', 'Fixed', 'I would')):
+                        continue
+                    if re.match(r'^[\d\.\s]+[A-Z]', line):  # Numbered list items
+                        continue
+                    if line.strip() and not line.startswith('#'):
+                        code_lines.append(line)
+                code_only = '\n'.join(code_lines)
+        
+        # Final cleanup of any remaining markdown or noise
+        code_only = re.sub(r'```.*$', '', code_only, flags=re.MULTILINE)
+        code_only = re.sub(r'^```.*\n', '', code_only, flags=re.MULTILINE)
+        
+        print(f"DEBUG - Extracted code fix: {code_only}")
+        return code_only.strip()
+    except Exception as e:
+        print(f"Error processing AI response: {str(e)}")
+        print(f"Raw response: {response.text}")
+        return None
 
 def apply_patch(file_path, line_number, fixed_code):
     """Apply the fix to the affected line of the file"""
