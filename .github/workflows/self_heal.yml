@@ -74,6 +74,7 @@ jobs:
         # python self_heal.py
 
     - name: get step status
+      if: always()
       id: job_status
       run: echo ${{ steps.self_heal.outcome }}
 
