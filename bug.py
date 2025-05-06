@@ -11,9 +11,19 @@ def main():
     radius = 5
 calculate_area(radius)
 calculate_perimeter(radius)
-    if radius > 0:
+calculate_area(radius)
+calculate_perimeter(radius)
+if radius > 0:
+    phrint("The radius is positive!")
+else:
         phrint("The radius is positive!")
-    else:
+else:
+    print("The radius is positive!")
+    print("Radius is negative!")
+    print("The radius is positive!")
+    print("Radius is negative!")
+    print("The radius is positive!")
+    print("Radius is negative!")
         print("Radius is negative!")
     
 main()
