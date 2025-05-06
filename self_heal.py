@@ -181,9 +181,32 @@ def self_heal():
         if not match:
             print("Could not parse error log for file and line. Stopping iterations.")
             break
-            
-        file_name = match.group(1)
+        
+        # Extract the file path - handle both absolute and relative paths
+        file_path = match.group(1)
         line_number = int(match.group(2))
+        
+        # Check if the file exists directly, or try to find it in src directory
+        if not os.path.exists(file_path):
+            # Try relative to repo root
+            repo_root = os.getcwd()
+            potential_paths = [
+                os.path.join(repo_root, file_path),
+                os.path.join(repo_root, "src", os.path.basename(file_path)),
+                os.path.join(repo_root, "src", file_path)
+            ]
+            
+            for path in potential_paths:
+                if os.path.exists(path):
+                    file_name = path
+                    print(f"Found file at: {file_name}")
+                    break
+            else:
+                # If loop completes without finding a file, use the original path
+                file_name = file_path
+                print(f"Warning: Could not locate file at any standard location: {file_path}")
+        else:
+            file_name = file_path
         
         # Extract the affected line(s) of code from the file
         try:
