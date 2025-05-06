@@ -161,11 +161,11 @@ def self_heal():
     print("git branch\n" + run_command('git branch'))
     print("git remote -v\n" + run_command('git remote -v'))
     print("git add .\n" + run_command('git add .'))
-    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors"'))
+    print("git commit\n" + run_command(f'git commit -m "Auto-fix applied for multiple errors - {iteration} iterations"'))
     print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
  
     # Create a PR with all the fixes
-    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)}")
+    pr_url = create_pr(BRANCH_NAME, f"Fix for multiple errors in {', '.join(fixed_files)} ({iteration} iterations)")
     print(f"PR created: {pr_url}")
     return pr_url
  
