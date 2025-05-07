@@ -1,6 +1,6 @@
 Hello, World!
 Hello from the main function!
 This is a buggy function
-Result: Fixed Result
+Result: some result
 This line is not executed due to the error
 This is the main function
