@@ -45,7 +45,7 @@ def analyze_with_fab(error_log, affected_code):
     response_json = response.json()
     response_content = response_json['output']['payload']['content']
     print("response_content: " + response_content)
-    apply_patch_file = run_command('echo "' + response_content + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    run_command('echo "' + response_content + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     return response_content
 
 def error_and_patch():
