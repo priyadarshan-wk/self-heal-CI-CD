@@ -76,9 +76,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
       run: |
         python3 create-and-update-pr.py
+        echo "::set-output name=pr_created::true"
 
     - name: Get PR link
-      if: github.ref == 'refs/heads/main'
+      if: (github.ref == 'refs/heads/main' && steps.self_heal.outputs.pr_created == 'true')
       run: |
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
