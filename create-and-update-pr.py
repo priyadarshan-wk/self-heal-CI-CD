@@ -49,6 +49,7 @@ def create_or_update_branch():
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         pr_url = create_pr(BRANCH_NAME, "Fix based on AI suggestion")
         print(f"PR created: {pr_url}")
+        print("GUITHUB_ENV\n" + os.environ["GITHUB_ENV"])
         with open(os.environ["GITHUB_ENV"], "a") as f:
             f.write(f"PR_URL={pr_url}\n")
         return pr_url
