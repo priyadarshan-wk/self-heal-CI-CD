@@ -38,10 +38,12 @@ jobs:
     - name: Run python script
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
+      shell: bash
       run: |
+        set +e
         # For loop until the bug is fixed
         for i in {1..5}; do
-          python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
+          python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           echo "Error message: "
           cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
           echo "Attempt $i/5"
