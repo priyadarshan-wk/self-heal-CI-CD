@@ -45,6 +45,7 @@ def analyze_with_fab(error_log, affected_code):
     response_json = response.json()
     response_content = response_json['output']['payload']['content']
     print("response_content: " + response_content)
+    apply_patch_file = run_command('echo "' + response_content + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
     return response_content
 
 def error_and_patch():
@@ -53,11 +54,11 @@ def error_and_patch():
     affected_code = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     print(f"Affected Code: {affected_code}")
     fixed_code = analyze_with_fab(error_log, affected_code)
-    print(f"Fixed Code: {fixed_code}")
-    apply_fixed_code = run_command('echo "' + fixed_code + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
+    # print(f"Fixed Code: {fixed_code}")
+    # apply_fixed_code = run_command('echo "' + fixed_code + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     print("show bug.py\n")
     print(run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py'))
-    return apply_fixed_code
+    return None
 
 if __name__ == "__main__":
     error_and_patch()
