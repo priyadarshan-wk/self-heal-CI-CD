@@ -50,13 +50,13 @@ def analyze_with_fab(error_log, affected_code):
 def error_and_patch():
     error_log = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt')
     print(f"Error Log: {error_log}")
-    affected_code = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    affected_code = run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     print(f"Affected Code: {affected_code}")
     fixed_code = analyze_with_fab(error_log, affected_code)
     print(f"Fixed Code: {fixed_code}")
-    apply_fixed_code = run_command('echo "' + fixed_code + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    apply_fixed_code = run_command('echo "' + fixed_code + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
 
-    run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/bug.py')
+    run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     return apply_fixed_code
 
 if __name__ == "__main__":
