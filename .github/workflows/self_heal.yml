@@ -15,8 +15,8 @@ jobs:
     steps:
     - name: Install build dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential python3-dev
+        sudo apt-get update 2>&1
+        sudo apt-get install -y build-essential python3-dev 2>&1
     - name: Checkout the code
       uses: actions/checkout@v4
       with:
@@ -34,44 +34,32 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # python -m pip install --upgrade pip
-        pip3 install -r requirements.txt
-        # pip install openai github
+        pip3 install -r requirements.txt 2>&1
     - name: Run python script
+      env:
+        GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
       run: |
-        pwd
-        ls -la
-        python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
+        # For loop until the bug is fixed
+        for i in {1..5}; do
+          python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
+          if [ $? -eq 0 ]; then
+            echo "Python script executed successfully."
+            break
+          else
+            echo "AI fix failed. Attempt $i/5."
+            python3 fab-self-heal.py
+          fi
+        done
         
-    # - name: Dynamically find and run Python files
-    #   run: |
-    #     exit 0
-    #     # Find all Python files (e.g., *.py) in the repository, excluding this workflow file
-    #     for python_file in $(find /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src -name "*.py"); do
-    #     echo "Running $python_file"
-        
-    #     # Create a unique error log per file
-    #     error_log="/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/$(basename "$python_file").error.txt"
-
-    #     python3 "$python_file" > "$error_log" 2>&1
-
-    #     if [ $? -ne 0 ]; then
-    #       echo "Error running $python_file! See $error_log"
-    #     fi
-    #     done
 
     - name: Run self-healing script
       id: self_heal
-      if: failure()
+      # if: failure()
       env:
-        GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        FAB_EXPY_API_URL: ${{ secrets.FAB_EXPY_API_URL }}
+        FAB_EXPY_API_KEY: ${{ secrets.FAB_EXPY_API_KEY }}
       run: |
-        pwd
-        ls -la
-        
-        cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
-        python self_heal.py
+        python3 create-and-update-pr.py
 
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
