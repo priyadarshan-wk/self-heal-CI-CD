@@ -9,7 +9,7 @@ import requests
 # Configure GitHub API
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 REPO_NAME = os.getenv("GITHUB_REPOSITORY")
-BRANCH_NAME = "self-heal-branch"
+BRANCH_NAME = "self-heal-branch-Saurabh"
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
