@@ -49,6 +49,7 @@ jobs:
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
+            echo "::set-output name=slack_msg::':white_check_mark: Self-healing workflow completed successfully!'"
             if [ $i -eq 1 ]; then
               echo "::set-output name=script_run::false"
             fi
@@ -63,7 +64,7 @@ jobs:
         done
         if [ $flag -eq 5 ]; then
           echo "Manual intervention required"
-          exit 1
+          echo "::set-output name=slack_msg::':alert: Self-healing workflow didn't fix error. Manual intervention required!'"
         fi
         
 
@@ -81,7 +82,7 @@ jobs:
     - name: Get PR link
       if: (github.ref == 'refs/heads/main' && steps.self_heal.outputs.pr_created == 'true')
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"message":":alert: Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
 
         
