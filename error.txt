@@ -1,6 +1,7 @@
-Hello, World!
-Hello from the main function!
 This is a buggy function
-Result: some result
-This line is not executed due to the error
-This is the main function
+Traceback (most recent call last):
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 8, in <module>
+    buggy_function()
+  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 3, in buggy_function
+    print("Result:", result)
+NameError: name 'result' is not defined
