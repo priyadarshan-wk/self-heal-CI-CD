@@ -36,18 +36,21 @@ jobs:
       run: |
         pip3 install -r requirements.txt > /dev/null 2>&1
     - name: Run python script
+      id: run_script
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
       shell: bash
       run: |
         set +e
-        # For loop until the bug is fixed
         for i in {1..5}; do
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
-            break
+            exit 0
           else
+            if [ $i -eq 1 ]; then
+              echo "::set-output name=script_run::true"
+            fi
             echo "AI fix applying. Attempt $i/5."
             python3 fab-self-heal.py
           fi
@@ -56,7 +59,7 @@ jobs:
 
     - name: Create or update PR
       id: self_heal
-      # if: failure()
+      if: ${{ steps.run_script.outputs.script_run == 'true' }}
       env:
         FAB_EXPY_API_URL: ${{ secrets.FAB_EXPY_API_URL }}
         FAB_EXPY_API_KEY: ${{ secrets.FAB_EXPY_API_KEY }}
