@@ -57,7 +57,7 @@ jobs:
             python3 fab-self-heal.py
           fi
         done
-        if [ $flag -eq 3 ]; then
+        if [ $flag -eq 2 ]; then
           echo "Manual intervention required"
           exit 1
         fi
