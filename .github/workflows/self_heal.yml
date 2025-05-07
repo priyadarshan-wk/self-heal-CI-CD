@@ -75,10 +75,10 @@ jobs:
       run: |
         python3 create-and-update-pr.py
 
-        curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
     - name: Get PR link
       if: always()
       run: |
+        curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
 
         

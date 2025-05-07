@@ -51,7 +51,7 @@ def create_or_update_branch():
         print(f"PR created: {pr_url}")
         print("GITHUB_ENV\n" + os.environ["GITHUB_ENV"])
         with open(os.environ["GITHUB_ENV"], "a") as f:
-            f.write(f"PR_URL={pr_url}\n")
+            f.write(f"PR_LINK={pr_url}\n")
         print(run_command('cat ' + os.environ["GITHUB_ENV"]))
         return pr_url
     else:
