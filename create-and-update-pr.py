@@ -55,3 +55,6 @@ def create_or_update_branch():
         print("git push\n" + run_command('git push origin ' + BRANCH_NAME + ' --force'))
         print("Remote branch already exists. No new PR created.")
         return None
+
+if __name__ == "__main__":
+    create_or_update_branch()

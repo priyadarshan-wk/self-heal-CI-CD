@@ -57,7 +57,7 @@ jobs:
         done
         
 
-    - name: Run self-healing script
+    - name: Create or update PR
       id: self_heal
       # if: failure()
       env:
