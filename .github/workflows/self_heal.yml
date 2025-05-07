@@ -66,8 +66,7 @@ jobs:
 
     - name: Create or update PR
       id: self_heal
-      # if: ${{ steps.run_script.outputs.script_run == 'true' }}
-      if: always()
+      if: ${{ steps.run_script.outputs.script_run == 'true' }}
       env:
         FAB_EXPY_API_URL: ${{ secrets.FAB_EXPY_API_URL }}
         FAB_EXPY_API_KEY: ${{ secrets.FAB_EXPY_API_KEY }}
