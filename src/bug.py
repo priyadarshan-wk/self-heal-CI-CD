@@ -2,8 +2,10 @@ import subprocess
 
 def buggy_function():
     print("This is a buggy function")
-    result = subprocess.run("echo 'Hello, World!'", shell=True)
+    result = "No result to display"
     print("Result:", result)
+    subprocess.run("echo 'Hello, World!'", shell=True)
+    print("This line is not executed due to the error"
 
 if __name__ == "__main__":
     buggy_function()

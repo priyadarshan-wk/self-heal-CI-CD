@@ -36,27 +36,38 @@ jobs:
       run: |
         pip3 install -r requirements.txt > /dev/null 2>&1
     - name: Run python script
+      id: run_script
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
       shell: bash
       run: |
         set +e
-        # For loop until the bug is fixed
+        flag=0
         for i in {1..5}; do
+          flag=$i
+          echo "flag: $flag"
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
-            break
+            exit 0
           else
+            if [ $i -eq 1 ]; then
+              echo "::set-output name=script_run::true"
+            fi
             echo "AI fix applying. Attempt $i/5."
             python3 fab-self-heal.py
           fi
         done
+        if [ $flag -eq 5 ]; then
+          echo "Manual intervention required"
+          exit 1
+        fi
         
 
     - name: Create or update PR
       id: self_heal
-      # if: failure()
+      # if: ${{ steps.run_script.outputs.script_run == 'true' }}
+      if: always()
       env:
         FAB_EXPY_API_URL: ${{ secrets.FAB_EXPY_API_URL }}
         FAB_EXPY_API_KEY: ${{ secrets.FAB_EXPY_API_KEY }}
@@ -64,6 +75,9 @@ jobs:
       run: |
         python3 create-and-update-pr.py
 
+    - name: Get PR link
+      if: github.ref == 'refs/heads/main'
+      run: |
         curl -X POST -H 'Content-type: application/json' --data '{"message":"Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
 

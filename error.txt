@@ -1,5 +1,5 @@
 Hello, World!
 Hello from the main function!
 This is a buggy function
-Result: CompletedProcess(args="echo 'Hello, World!'", returncode=0)
+Result: No result to display
 This is the main function
