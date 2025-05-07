@@ -1,4 +1,5 @@
-  File "/home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py", line 41
-    ```
-    ^
-SyntaxError: invalid syntax
+Hello, World!
+Hello from the main function!
+This is a buggy function
+Result: CompletedProcess(args="echo 'Hello, World!'", returncode=0)
+This is the main function
