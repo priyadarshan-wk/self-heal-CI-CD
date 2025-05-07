@@ -5,5 +5,5 @@ subprocess.run("echo 'Hello, World!'", shell=True)
 
 if __name__ == "__main__":
     buggy_function()
-    print("This is the main function"
+    prhint("This is the main function"
     subprocess.run("echo 'Hello from the main function!'", shell=True)
