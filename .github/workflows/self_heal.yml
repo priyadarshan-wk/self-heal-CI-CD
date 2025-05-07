@@ -15,8 +15,8 @@ jobs:
     steps:
     - name: Install build dependencies
       run: |
-        sudo apt-get update 2>&1
-        sudo apt-get install -y build-essential python3-dev 2>&1
+        sudo apt-get update > /dev/null 2>&1
+        sudo apt-get install -y build-essential python3-dev > /dev/null 2>&1
     - name: Checkout the code
       uses: actions/checkout@v4
       with:
@@ -34,19 +34,20 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip3 install -r requirements.txt 2>&1
+        pip3 install -r requirements.txt > /dev/null 2>&1
     - name: Run python script
       env:
         GITHUB_TOKEN: ${{ secrets.YOUR_GITHUB_TOKEN }}
       run: |
         # For loop until the bug is fixed
         for i in {1..5}; do
-          python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
+          python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
+          cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
             break
           else
-            echo "AI fix failed. Attempt $i/5."
+            echo "AI fix applying. Attempt $i/5."
             python3 fab-self-heal.py
           fi
         done
