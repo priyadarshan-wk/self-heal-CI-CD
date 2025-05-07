@@ -53,8 +53,6 @@ jobs:
           else
             echo "AI fix applying. Attempt $i/5."
             python3 fab-self-heal.py
-            echo "AI fixed code"
-            cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py
           fi
         done
         
