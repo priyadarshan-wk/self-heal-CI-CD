@@ -1,5 +1,5 @@
 Hello, World!
 Hello from the main function!
 This is a buggy function
-Result: No result available
+Result: Some result
 This is the main function
