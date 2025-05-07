@@ -44,7 +44,7 @@ jobs:
         set +e
         flag=0
         for i in {1..2}; do
-          flag=i
+          flag=$i
           echo "flag: $flag"
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
