@@ -49,7 +49,9 @@ jobs:
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
-            echo "::set-output name=script_run::false"
+            if [ $i -eq 1 ]; then
+              echo "::set-output name=script_run::false"
+            fi
             exit 0
           else
             if [ $i -eq 1 ]; then
