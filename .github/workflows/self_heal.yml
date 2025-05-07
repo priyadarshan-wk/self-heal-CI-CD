@@ -15,8 +15,8 @@ jobs:
     steps:
     - name: Install build dependencies
       run: |
-        sudo apt-get update > /dev/null 2>&1
-        sudo apt-get install -y build-essential python3-dev > /dev/null 2>&1
+        sudo apt-get update
+        sudo apt-get install -y build-essential python3-dev 
     - name: Checkout the code
       uses: actions/checkout@v4
       with:
@@ -34,7 +34,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip3 install -r requirements.txt > /dev/null 2>&1
+        pip3 install -r requirements.txt
     - name: Run python script
       id: run_script
       env:
@@ -82,7 +82,7 @@ jobs:
     - name: Get PR link
       if: (github.ref == 'refs/heads/main' && steps.self_heal.outputs.pr_created == 'true')
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"message":":alert: Self-healing workflow completed. PR created with the fix!\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"message":"${{ steps.run_script.slack_msg }}\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
 
         
