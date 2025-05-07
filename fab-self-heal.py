@@ -56,7 +56,7 @@ def error_and_patch():
     print(f"Fixed Code: {fixed_code}")
     apply_fixed_code = run_command('echo "' + fixed_code + '" > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
     print("show bug.py\n")
-    run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py')
+    print(run_command('cat /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/src/bug.py'))
     return apply_fixed_code
 
 if __name__ == "__main__":
