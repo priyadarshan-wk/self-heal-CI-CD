@@ -1,7 +1,8 @@
 import subprocess
 def buggy_function():
     print("This is a buggy function")
-    prinht("Result:", result)
+    result = "No result available"  # Define the variable 'result'
+    print("Result:", result)
 subprocess.run("echo 'Hello, World!'", shell=True)
 
 if __name__ == "__main__":
