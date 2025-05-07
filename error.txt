@@ -2,4 +2,5 @@ Hello, World!
 Hello from the main function!
 This is a buggy function
 Result: No result to display
+This line is not executed due to the error
 This is the main function
