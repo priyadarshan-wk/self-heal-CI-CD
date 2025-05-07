@@ -64,7 +64,7 @@ jobs:
         done
         if [ $flag -eq 2 ]; then
           echo "Manual intervention required"
-          echo "::set-output name=slack_msg:::alert: Self-healing workflow didn't fix error. Manual intervention required! PR for review."
+          echo "::set-output name=slack_msg:::alert: Self-healing workflow did not fix error. Manual intervention required! PR for review."
         fi
         
 
