@@ -82,7 +82,7 @@ jobs:
     - name: Get PR link
       if: (github.ref == 'refs/heads/main' && steps.self_heal.outputs.pr_created == 'true')
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"message":"${{ steps.run_script.slack_msg }}\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        curl -X POST -H 'Content-type: application/json' --data '{"message":"${{ steps.run_script.outputs.slack_msg }}\n${{ env.PR_LINK }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
         echo "PR_LINK: "${{ env.PR_LINK }}
 
         
