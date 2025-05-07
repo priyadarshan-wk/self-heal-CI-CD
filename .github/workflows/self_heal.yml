@@ -42,7 +42,7 @@ jobs:
       shell: bash
       run: |
         set +e
-        for i in {1..5}; do
+        for i in {1..2}; do
           python3 src/bug.py > /home/runner/work/self-heal-CI-CD/self-heal-CI-CD/error.txt 2>&1
           if [ $? -eq 0 ]; then
             echo "Python script executed successfully."
@@ -55,6 +55,10 @@ jobs:
             python3 fab-self-heal.py
           fi
         done
+        if [$i -eq 3]; then
+          echo "Manual intervention required"
+          exit 1
+        fi
         
 
     - name: Create or update PR
